@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UN-Style Writing Training: Day 2</title>
+<style>
+    :root {
+        --primary-blue: #1a237e; 
+        --soft-blue: #e8eaf6;
+        --silver-gray: #f5f5f7;
+        --border-gray: #cfd8dc;
+        --accent-teal: #00897b;
+        --wrong-red: #c62828;
+        --text-dark: #1a1a1a;
+        --base-font: "Yu Gothic", "Meiryo", sans-serif;
+    }
+
+    body {
+        font-family: var(--base-font);
+        background-color: var(--silver-gray);
+        color: var(--text-dark);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        margin: 0;
+    }
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 850px;
+        margin-bottom: 15px;
+        border-bottom: 2px solid var(--primary-blue);
+        padding-bottom: 5px;
+    }
+    h1 { font-size: 1.2rem; margin: 0; color: var(--primary-blue); }
+    
+    .control-panel { display: flex; align-items: center; gap: 15px; }
+    .settings { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: #555; }
+    .switch { position: relative; display: inline-block; width: 28px; height: 14px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 10px; }
+    .slider:before { position: absolute; content: ""; height: 10px; width: 10px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--primary-blue); }
+    input:checked + .slider:before { transform: translateX(14px); }
+
+    .tabs { display: flex; gap: 5px; }
+    .tab-btn {
+        padding: 5px 12px; border-radius: 15px; border: 1px solid var(--primary-blue);
+        background: white; color: var(--primary-blue); cursor: pointer; font-size: 0.75rem; font-weight: bold;
+    }
+    .tab-btn.active { background: var(--primary-blue); color: white; }
+
+    .container {
+        background: white; max-width: 850px; width: 100%; padding: 25px; border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .meta-info { text-align: left; font-size: 0.75rem; color: #666; margin-bottom: 15px; font-weight: bold; }
+    
+    .comparison-table {
+        width: 100%; border-collapse: collapse; margin-bottom: 15px; text-align: left; font-size: 0.9rem;
+    }
+    .comparison-table td { padding: 8px 12px; border-bottom: 1px solid #e0e0e0; vertical-align: top; line-height: 1.5; }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .row-title { font-weight: bold; width: 150px; white-space: nowrap; }
+    .title-ja { color: #1a1a1a; }
+    .title-bad { color: var(--wrong-red); }
+    .title-habit { color: #e65100; }
+    .title-good-ja { color: var(--accent-teal); }
+
+    .question-box {
+        font-size: 1rem; background-color: var(--soft-blue); border-bottom: 4px solid var(--primary-blue);
+        padding: 15px 20px; border-radius: 12px; margin-bottom: 15px; text-align: left; font-weight: bold; line-height: 1.5; color: var(--primary-blue);
+    }
+
+    .choices-grid { display: grid; grid-template-columns: 1fr; gap: 10px; max-width: 750px; margin: 0 auto; }
+    .choice-btn {
+        background-color: var(--silver-gray); color: #000; border: 1px solid var(--border-gray);
+        padding: 14px 20px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: bold; text-align: left; transition: 0.2s;
+    }
+    .choice-btn:hover { background-color: #c5cae9; }
+
+    .answer-area {
+        min-height: 60px; border: 2px dashed var(--border-gray); border-radius: 12px; padding: 12px;
+        margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; background: #fafafa; align-items: center;
+    }
+    .answer-word {
+        background-color: white; color: var(--primary-blue); border: 2px solid var(--primary-blue);
+        padding: 8px 14px; border-radius: 8px; font-size: 0.95rem; font-weight: bold; cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; padding-top: 10px; border-top: 1px solid #eee; justify-content: center; }
+    .word-btn {
+        background-color: var(--silver-gray); border: 1px solid var(--border-gray);
+        padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: bold;
+    }
+    .word-btn.used { visibility: hidden; pointer-events: none; }
+    
+    .final-text-view {
+        font-size: 1.25rem; color: var(--primary-blue); font-weight: bold; padding: 20px;
+        line-height: 1.6; text-align: left; background: #e8f5e9; border-radius: 12px; border-left: 6px solid #2e7d32;
+    }
+
+    .explanation-box {
+        padding: 15px; background: #fffde7; border-radius: 8px; text-align: left; font-size: 0.85rem; line-height: 1.5; border: 1px solid #fff59d;
+    }
+
+    .action-btn {
+        background: var(--primary-blue); color: white; border: none; padding: 12px 40px;
+        border-radius: 4px; font-size: 0.95rem; font-weight: bold; cursor: pointer; margin-top: 10px;
+    }
+    .action-btn:disabled { background: #ccc; }
+
+    #print-area { display: none; }
+
+    /* ================= 印刷時専用スタイル ================= */
+    @media print {
+        header, .no-print, .action-btn, .container { display: none !important; }
+        #print-area { display: block !important; width: 100%; color: #000000; font-family: "Yu Gothic", serif; font-size: 10pt; }
+        .print-page { page-break-after: always; padding: 10px; }
+        .print-title { font-size: 12pt; text-align: center; border-bottom: 2px solid #000000; padding-bottom: 5px; margin-bottom: 20px; font-weight: bold; }
+        .print-item { margin-bottom: 25px; page-break-inside: avoid; }
+        .print-meta { font-size: 8pt; font-weight: bold; color: #000000; margin-bottom: 3px; }
+        .print-ja-block { font-size: 10pt; line-height: 1.5; color: #000000; }
+        .print-good-info { display: block; font-weight: bold; margin-top: 2px; }
+        .print-bad-info { font-size: 9.5pt; font-style: italic; margin: 4px 0; color: #000000; }
+        .print-bank-box { font-size: 9.5pt; font-weight: bold; padding: 5px 0; margin: 5px 0; line-height: 1.4; color: #000000; border: none !important; background: none !important; }
+        .print-reorder-line { border-bottom: 1px solid #000000; height: 35px; margin-top: 5px; width: 100%; }
+        .print-exp { font-size: 8.5pt; margin-top: 6px; padding-left: 10px; border-left: 2px solid #000000; color: #000000; line-height: 1.4; }
+    }
+</style>
+</head>
+<body>
+
+<header class="no-print">
+    <h1>UN-Style Writing Training (Day 2)</h1>
+    <div class="control-panel">
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-vocab" onclick="switchMode('vocab')">Vocabulary (20)</button>
+            <button class="tab-btn" id="tab-reorder" onclick="switchMode('reorder')">Reorder (20)</button>
+        </div>
+        <div class="settings">
+            <span>Audio</span>
+            <label class="switch"><input type="checkbox" id="audioToggle" checked><span class="slider"></span></label>
+        </div>
+    </div>
+</header>
+
+<div class="container no-print">
+    <div id="quiz-ui">
+        <div class="meta-info" id="metaInfo">Loading...</div>
+        
+        <table class="comparison-table">
+            <tr id="rowOriginalJa">
+                <td class="row-title title-ja">元の日本語文</td>
+                <td id="textOriginalJa">Loading...</td>
+            </tr>
+            <tr id="rowBadEn">
+                <td class="row-title title-bad">直訳英訳 (Bad)</td>
+                <td id="textBadEn" style="font-style: italic;">Loading...</td>
+            </tr>
+            <tr id="rowHabit">
+                <td class="row-title title-habit">日本人の悪い癖</td>
+                <td id="textHabit">Loading...</td>
+            </tr>
+            <tr id="rowAfterJa">
+                <td class="row-title title-good-ja">洗練後の和訳変化</td>
+                <td id="textAfterJa" style="font-weight: bold; color: var(--accent-teal);">Loading...</td>
+            </tr>
+        </table>
+
+        <div class="question-box" id="enQuestion">Loading...</div>
+        <div id="interactive-area"></div>
+        <div id="resultMsg" style="margin: 15px 0; font-size: 1.05rem; font-weight: bold; text-align: left;"></div>
+        <div id="explanationArea"></div>
+        <button class="action-btn" id="mainActionBtn" onclick="handleMainAction()" disabled>Check Answer</button>
+    </div>
+    <button onclick="window.print()" style="margin-top:30px; background:none; border:none; text-decoration:underline; cursor:pointer; color:#666; font-size: 0.85rem;">この週の特訓ワークシートを印刷する (A4出力対応)</button>
+</div>
+
+<div id="print-area">
+    <div class="print-page">
+        <div class="print-title">UN-Style Writing Worksheet: Day 2 Vocabulary Fill-in</div>
+        <div id="print-vocab-content"></div>
+    </div>
+    <div class="print-page">
+        <div class="print-title">UN-Style Writing Worksheet: Day 2 Sentence Reordering</div>
+        <div id="print-reorder-content"></div>
+    </div>
+</div>
+
+<script>
+let currentIdx = 0;
+let currentMode = 'vocab';
+let isChecked = false;
+let userSelection = [];
+
+// 厳選20本（全40特訓問題）の完全マスターデータ [cite: 7, 18]
+const masterQuestions = [
+    {
+        page: "Page 43 (Chapter 2)",
+        ja: "過去10年間において、構造的な変化が世界的な進歩の基礎となった。",
+        bad: "Over the past decade, structural changes became the base of global progress.",
+        habit: "「基礎となった」をそのまま became the base と直訳し、政策のコアとなる「礎（いしずえ）」という意味の重みが欠ける癖。",
+        afterJa: "過去10年間において、構造的な変化が世界的な進歩の礎を形成してきた。",
+        display: "Over the past decade, structural changes have formed the [   ] of global progress.",
+        choices: ["cornerstone", "base", "foundation"],
+        correct: "cornerstone",
+        bank: ["Over", "the", "past", "decade", ",", "structural", "changes", "have", "formed", "the", "cornerstone", "of", "global", "progress", "."],
+        exp: "社会の根幹をなすような重要な基礎、最重要事項を表現する際、国連や公式レポートでは cornerstone（礎、キーストーン）という格調高い名詞が非常に好まれます。"
+    },
+    {
+        page: "Page 43 (Chapter 2)",
+        ja: "新しい法律は、公衆の議論を始めさせ、政策の形を作るのに役立った。",
+        bad: "New laws started public debates and helped to make policies.",
+        habit: "「議論を始める」を started、「政策の形を作る」を make policies と中学生レベルの動詞で処理してしまう癖。",
+        afterJa: "新しい法律は、公の議論を喚起し、政策を具体的に形作る上で重要な役割を果たしてきた。",
+        display: "New laws have been instrumental in triggering public debate and [   ] policies.",
+        choices: ["shaping", "making", "formulating"],
+        correct: "shaping",
+        bank: ["New", "laws", "have", "been", "instrumental", "in", "triggering", "public", "debate", "and", "shaping", "policies", "."],
+        exp: "政策や社会的な枠組みを、意図した方向へ「具体的に形作る、方向づける」という文脈では、make ではなく shaping（〜を形作る）が最もプロフェッショナルな響きになります。"
+    },
+    {
+        page: "Page 44 (Chapter 2)",
+        ja: "国の法律は、条約を具体的な保護に変えるために必要だ。",
+        bad: "National laws are necessary to change the treaty into concrete protection.",
+        habit: "日本語の「～に変える」をそのまま change A into B と直訳し、法律用語としての洗練さを欠く癖。",
+        afterJa: "国内法は、条約の内容を具体的な保護へと具現化するために不可欠である。",
+        display: "National legislation is essential for [   ] the CRPD into concrete protections.",
+        choices: ["translating", "changing", "implementing"],
+        correct: "translating",
+        bank: ["National", "legislation", "is", "essential", "for", "translating", "the", "CRPD", "into", "concrete", "protections", "."],
+        exp: "国際条約などの抽象的な人権基準を、個別の国内法や具体的な施策へと「落とし込む、具現化する」という場合、change ではなく translating（翻訳する・具現化する）という動詞を使います。"
+    },
+    {
+        page: "Page 44 (Chapter 2)",
+        ja: "これは、差別的な法律を廃止したり直したりすることを求めている。",
+        bad: "This requests canceling or fixing discriminatory laws.",
+        habit: "法律を「廃止する」を単に cancel、「改正する」を fix と訳し、法改正の厳密な手続きのニュアンスが消える癖。",
+        afterJa: "これは、差別的な法律や規制を廃止し、あるいは改正することを義務付けるものである。",
+        display: "This requires [   ] or amending laws and regulations that are discriminatory.",
+        choices: ["repealing", "canceling", "deleting"],
+        correct: "repealing",
+        bank: ["This", "requires", "repealing", "or", "amending", "laws", "and", "regulations", "that", "are", "discriminatory", "."],
+        exp: "法律や規則を公式に「廃止・撤廃する」という法的な公式動詞は repealing です。「改正する」を表す amend と並んで、行政リポートの必須語彙です。"
+    },
+    {
+        page: "Page 44 (Chapter 2)",
+        ja: "法律の修正を mainstream の法律全体に広げないと、法律の保護に隙間ができる。",
+        bad: "If we don't put changes into mainstream laws, there will be gaps in protection.",
+        habit: "「～しないと格差が残る」という条件節を If we don't... などのベタな否定文で書き、格調が下がってしまう癖。",
+        afterJa: "主流の分野別法律が保護規定を不十分にしか組み込んでいない場合、不一致が生じる可能性がある。",
+        display: "If mainstream sectoral legislation [   ] incorporates protections, there may be inconsistencies.",
+        choices: ["inadequately", "badly", "unsuccessfully"],
+        correct: "inadequately",
+        bank: ["If", "mainstream", "sectoral", "legislation", "inadequately", "incorporates", "protections", ",", "there", "may", "be", "inconsistencies", "."],
+        exp: "「〜が不十分である、適切に行われない」という行政の落ち度や不備を客観的・上品に指摘する場合、badly ではなく inadequately（不十分に）という副詞を動詞の前に置きます。"
+    },
+    {
+        page: "Page 45 (Chapter 2)",
+        ja: "権利ベースのアプローチへの移行は、まだ国によってバラバラだ。",
+        bad: "The change to the rights-based approach is still different in each country.",
+        habit: "「（人権モデルへの）移行」を単なる change と訳し、社会的な大転換であるニュアンスを落としてしまう癖。",
+        afterJa: "慈善モデルや医療モデルから人権モデルへの移行は、依然として一様ではない（バラつきがある）。",
+        display: "The [   ] from charity and medical models to the human rights model remains uneven.",
+        choices: ["transition", "change", "movement"],
+        correct: "transition",
+        bank: ["The", "transition", "from", "charity", "and", "medical", "models", "to", "the", "human", "rights", "model", "remains", "uneven", "."],
+        exp: "古いシステムから新しい時代に即した仕組みへと社会全体が「段階的に移行する、大転換する」という場合は、単なる change ではなく transition を使用します。"
+    },
+    {
+        page: "Page 46 (Chapter 2)",
+        ja: "法律は、すべての障害者をカバーする広い定義を含めなければならない。",
+        bad: "Laws must include a wide definition to cover all disabled people.",
+        habit: "「すべての障害者をカバーする」をそのまま cover all と表現し、すべての人を漏れなく包み込むという政策的な意思が伝わらない癖。",
+        afterJa: "障害に関する法制は、公的なステータスをも包含する形で、包括的な権利の保護を保障するものでなければならない。",
+        display: "Disability legislation must ensure comprehensive rights protections, [   ] of their official status.",
+        choices: ["inclusive", "covering", "including"],
+        correct: "inclusive",
+        bank: ["Disability", "legislation", "must", "ensure", "comprehensive", "rights", "protections", ",", "inclusive", "of", "their", "official", "status", "."],
+        exp: "incousive of 〜、あらゆるステータスを包含することで、結果として「どんなステータスであれ関係なく（差をつけずに）、全員を守る」という強い意志が伝わります。"
+    },
+    {
+        page: "Page 50 (Chapter 2)",
+        ja: "効果的な実施の証拠は限られており、包括的な評価が足りない。",
+        bad: "Evidence of effective implementation is limited, and we lack good evaluations.",
+        habit: "「～が足りない」を we lack などの主観的な表現で書き、行政側の体制不備が客観的に伝わらない癖。",
+        afterJa: "効果的な法執行に関するエビデンスは限定的であり、効果を体系的に測定する包括的な評価が欠如している。",
+        display: "Evidence on the effective implementation of disability laws is limited, and there is a lack of comprehensive evaluations that [   ] assess their effectiveness.",
+        choices: ["systematically", "completely", "properly"],
+        correct: "systematically",
+        bank: ["Evidence", "on", "the", "effective", "implementation", "of", "disability", "laws", "is", "limited", ",", "and", "there", "is", "a", "lack", "of", "comprehensive", "evaluations", "that", "systematically", "assess", "their", "effectiveness", "."],
+        exp: "ただ評価するのではなく、科学的・組織的な手順に則って格差を「体系的に測定する」という質を表現する場合、systematically という副詞がマストになります。"
+    },
+    {
+        page: "Page 50 (Chapter 2)",
+        ja: "これがないと、法律はただのシンボルになってしまう恐れがある。",
+        bad: "Without this, laws will be just symbols.",
+        habit: "「ただのシンボル（形骸化する）」をそのまま just symbols と直訳し、実効性が伴っていないという重要な行政課題のニュアンスが消える癖。",
+        afterJa: "これらの措置が講じられない限り、障害者関連法は大部分が形骸的な（象徴的な）ものに留まるリスクがある。",
+        display: "Without these measures, disability laws risk remaining largely [   ].",
+        choices: ["symbolic", "useless", "empty"],
+        correct: "symbolic",
+        bank: ["Without", "these", "measures", ",", "disability", "laws", "risk", "remaining", "largely", "symbolic", "."],
+        exp: "法律や予算が書類上だけで存在し、実際の効果を上げていない「形骸化」を上品かつクリティカルに指摘する言葉が remain largely symbolic です。"
+    },
+    {
+        page: "Page 53 (Chapter 2)",
+        ja: "当事者の参加が形だけで終わっており、決定権に影響を与える機会が限られている。",
+        bad: "Their participation is just for form, and they have few chances to change decisions.",
+        habit: "「形だけの、表面的な参加」を just for form や superficial と直訳し、政策用語としての「お座なりな参加」を表せない癖。",
+        afterJa: "多くの場合、彼らの参加は形骸的なものに留まっており、意思決定プロセスに影響を与える機会は極めて限定的である。",
+        display: "In many cases, participation is [   ], with limited opportunities to influence decision-making.",
+        choices: ["tokenistic", "formal", "superficial"],
+        correct: "tokenistic",
+        bank: ["In", "many", "cases", ",", "participation", "is", "tokenistic", ",", "with", "limited", "opportunities", "to", "influence", "decision-making", "."],
+        exp: "会議に席を用意するような「形だけの参加、アリバイ作りの登用」を tokenistic と言います。リバイズで非常によく使われる重要単語です。"
+    },
+    {
+        page: "Page 54 (Chapter 2)",
+        ja: "いくつかの国では、議会の中に障害の委員会を作っている。",
+        bad: "Some countries are making disability committees inside their parliaments.",
+        habit: "「（組織や制度を）新しく立ち上げる、設置する」を何でも make や create で片付け、行政文書としての品格を欠く癖。",
+        afterJa: "諸国は、議会委員会を設置することによって、障害者の権利を議会業務の標準的な要素として組み込む動きをますます強めている。",
+        display: "States are increasingly including disability rights as a standard element of parliamentary business, with the [   ] of parliamentary committees.",
+        choices: ["establishment", "making", "production"],
+        correct: "establishment",
+        bank: ["States", "are", "increasingly", "including", "disability", "rights", "as", "a", "standard", "element", "of", "parliamentary", "business", ",", "with", "the", "establishment", "of", "parliamentary", "committees", "."],
+        exp: "組織や制度を「正式に発足させる、設置する」という文脈では、名詞の establishment が最もフォーマルで適しています。"
+    },
+    {
+        page: "Page 54 (Chapter 2)",
+        ja: "これらの委員会は、超党派で協力するチャンスを与える。",
+        bad: "These committees give a chance to cooperate across parties.",
+        habit: "「チャンス（機会）を与える」を give a chance と直訳し、行政の戦略的な場の提供という意味合いが薄れる癖。",
+        afterJa: "これらは、障害者の権利問題に関する超党派の（政党の枠を超えた）連携の機会を提供している。",
+        display: "These [   ] an opportunity for cross-party collaboration on disability rights issues.",
+        choices: ["provide", "give", "show"],
+        correct: "provide",
+        bank: ["These", "provide", "an", "opportunity", "for", "cross-party", "collaboration", "on", "disability", "rights", "issues", "."],
+        exp: "公的なサービスや機会を「提供する」という場合、単なる口語の give ではなく、provide を用いるのが世界のレポートの共通ルールです。"
+    },
+    {
+        page: "Page 55 (Chapter 2)",
+        ja: "この中心的な組織の場所（力）は国によって違う。",
+        bad: "The place of this main organization is different in each country.",
+        habit: "組織の「政府内での地位や位置づけ」をそのまま place や location と直訳し、行政的な権限の強さのニュアンスを落とす癖。",
+        afterJa: "（政策を取りまとめる）主導機関の、序列上の位置（高さ）と権限は、それぞれの政府構造によって、著しく異なる。",
+        display: "The hierarchical location and [   ] of the focal point vary significantly across government structures.",
+        choices: ["authority", "place", "power"],
+        correct: "authority",
+        bank: ["The", "hierarchical", "location", "and", "authority", "of", "the", "focal", "point", "vary", "significantly", "across", "government", "structures", "."],
+        exp: "政府内での「公式な裁量権、指揮権、権限」を客観的に表現する専門語は authority（権限）です。"
+    },
+    {
+        page: "Page 55 (Chapter 2)",
+        ja: "複数の中心組織がある場合、協力するのが難しくなる。",
+        bad: "When there are many main organizations, cooperating becomes difficult.",
+        habit: "「協力する、連携をとる」を安易に cooperate と表現し、組織間の緻密な足並み揃えという意味が伝わらない癖。",
+        afterJa: "それらの利点があるにもかかわらず、複数の主導機関（窓口）の間での連携は、重大な課題をもたらす（＝課題となり得る）",
+        display: "Despite their advantages, [   ] among multiple focal points presents significant challenges.",
+        choices: ["coordination", "cooperation", "partnership"],
+        correct: "coordination",
+        bank: ["Despite", "their", "advantages", ",", "coordination", "among", "multiple", "focal", "points", "presents", "significant", "challenges", "."],
+        exp: "異なる省庁や複数の組織が足並みを揃え、機能的に「連携する、整合性を図る」という行政の最重要コンセプトは coordination です。"
+    },
+    {
+        page: "Page 56 (Chapter 2)",
+        ja: "多くの組織が予算不足で、十分な仕事ができていない。",
+        bad: "Many organizations don't have enough budget, so they can't do good work.",
+        habit: "「予算が足りない」「人が足りない」を don't have enough や単なる予算だけの問題として片付けてしまう癖。",
+        afterJa: "多くの主導機関は深刻なリソースの制約に直面しており、十分な資金や人員が欠如している。",
+        display: "Many focal points face significant [   ] constraints, lacking sufficient funding and staff.",
+        choices: ["resource", "budget", "money"],
+        correct: "resource",
+        bank: ["Many", "focal", "points", "face", "significant", "resource", "constraints", ",", "lacking", "sufficient", "funding", "and", "staff", "."],
+        exp: "人手やノウハウまですべて含めて足りない状態を指すため、包括的に resource constraints（資源制約・リソース不足）と表現します。"
+    },
+    {
+        page: "Page 56 (Chapter 2)",
+        ja: "これがないと、彼らは活動を広く変えることに集中できない。",
+        bad: "Without this, they cannot focus on changing activities widely.",
+        habit: "「社会全体を大きく包摂の方向へ変える」を changing widely と訳し、社会全体の構造をドラスティックに変革するというダイナミズムが消える癖。",
+        afterJa: "適切な体制（構造）がなければ、彼らはより大きな包摂に向けてシステム全体を変革するために、リソースを集中させることはできない。",
+        display: "Without proper structures, they cannot prioritize their resources to catalyse systemic [   ] towards greater inclusion.",
+        choices: ["transformation", "change", "movement"],
+        correct: "transformation",
+        bank: ["Without", "proper", "structures", ",", "they", "cannot", "prioritize", "their", "resources", "to", "catalyse", "systemic", "transformation", "towards", "greater", "inclusion", "."],
+        exp: "社会やシステムの構造を根本から一変させるような大規模な変革には transformation という強い表現が使われます。"
+    },
+    {
+        page: "Page 58 (Chapter 2)",
+        ja: "この組織の独立性は、国をチェックするために絶対必要だ。",
+        bad: "The independence of this organization is necessary to check the government.",
+        habit: "「政府の動きを監視する」を単に check と訳し、監視機関としての厳格な説明責任の追及ニュアンスが弱まる癖。",
+        afterJa: "独立監視機関の独立性は、政府に対して説明責任を課すために不可欠である。",
+        display: "The independence of independent monitoring mechanisms is essential to hold governments [   ].",
+        choices: ["accountable", "responsible", "checked"],
+        correct: "accountable",
+        bank: ["The", "independence", "of", "independent", "monitoring", "mechanisms", "is", "essential", "to", "hold", "governments", "accountable", "."],
+        exp: "公的な立場として国民や条約に対して「説明する義務がある、果たすべき責任がある」状態を hold governments accountable と言います。"
+    },
+    {
+        page: "Page 60 (Chapter 2)",
+        ja: "効果的な監視機関は、法律をチェックする強い力を持つべきだ。",
+        bad: "Effective monitoring organizations should have strong power to check laws.",
+        habit: "法律や政策が条約に適合しているかを「審査する権限」を have strong power と小学生並みの表現にしてしまう癖。",
+        afterJa: "効果的な監視機関は、既存の法律や政策がCRPD（障害者権利条約）に適合しているかを審査する権限を持つべきである",
+        display: "Effective monitoring mechanisms should have the [   ] to examine legislation and policies for compliance with the CRPD.",
+        choices: ["authority", "power", "ability"],
+        correct: "authority",
+        bank: ["Effective", "monitoring", "mechanisms", "should", "have", "the", "authority", "to", "examine", "legislation", "and", "policies", "for", "compliance", "with", "the", "CRPD", "."],
+        exp: "公的な機関が持つ「法的な審査権、正当な権限」を表す場合は、単なる力ではなく authority（権限）を厳格に使用します。"
+    },
+    {
+        page: "Page 63 (Chapter 2)",
+        ja: "過去15年間で、データの量と質において大きな進歩があった。",
+        bad: "In the past 15 years, there was a big progress in data quantity and quality.",
+        habit: "「大きな進歩があった」を there was a big progress と訳し、歴史的に「長足の進歩を遂げてきた」という劇的な努力の歩みを落とす癖。",
+        afterJa: "過去15年間において、グローバルな障害データの利用可能性、比較可能性、そして品質は、長足の進歩を遂げてきた。",
+        display: "In the past 15 years, great [   ] have been made in the availability, comparability and quality of global disability data.",
+        choices: ["strides", "progress", "changes"],
+        correct: "strides",
+        bank: ["In", "the", "past", "15", "years", ",", "great", "strides", "have", "been", "made", "in", "the", "availability", ",", "comparability", "and", "quality", "of", "global", "disability", "data", "."],
+        exp: "単なる進歩という名詞の代わりに、make great strides（長足の進歩を遂げる、大股で前進する）という表現が好まれます。"
+    },
+    {
+        page: "Page 63 (Chapter 2)",
+        ja: "標準的なデータの取り方は、国際的な比較を可能にした。",
+        bad: "Standard ways of taking data made international comparison possible.",
+        habit: "「～を可能にした」をそのまま made possible と直訳し、データの科学的な信頼性や価値を向上させたという格調が消える癖。",
+        afterJa: "障害を測定するための、これらの標準化されたアプローチは、国際データの量、一貫性、そして比較可能性を向上させた。",
+        display: "These standardized approaches to measuring disability have increased the amount, consistency and [   ] of international data.",
+        choices: ["comparability", "possibility", "relationship"],
+        correct: "comparability",
+        bank: ["These", "standardized", "approaches", "to", "measuring", "disability", "have", "increased", "the", "amount", ",", "consistency", "and", "comparability", "of", "international", "data", "."],
+        exp: "他国のデータと同じ基準で横並びに検証できる性質のことを、統計の専門用語で comparability（比較可能性）と言います。"
+    }
+];
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function speak(text) {
+    const toggle = document.getElementById('audioToggle');
+    if (toggle && toggle.checked && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+function switchMode(mode) {
+    currentMode = mode;
+    currentIdx = 0;
+    document.getElementById('tab-vocab').classList.toggle('active', mode === 'vocab');
+    document.getElementById('tab-reorder').classList.toggle('active', mode === 'reorder');
+    loadQuestion();
+}
+
+function loadQuestion() {
+    isChecked = false;
+    userSelection = [];
+    document.getElementById('resultMsg').textContent = "";
+    document.getElementById('explanationArea').innerHTML = "";
+    
+    const btn = document.getElementById('mainActionBtn');
+    btn.textContent = "Check Answer";
+    btn.disabled = true;
+
+    const item = masterQuestions[currentIdx];
+    
+    document.getElementById('metaInfo').textContent = "Reference: GDIR 2025 " + item.page;
+    document.getElementById('textOriginalJa').textContent = item.ja;
+    document.getElementById('textBadEn').textContent = item.bad;
+    document.getElementById('textHabit').textContent = item.habit;
+    document.getElementById('textAfterJa').textContent = item.afterJa;
+    
+    if (currentMode === 'vocab') {
+        document.getElementById('rowAfterJa').style.display = "table-row";
+        document.getElementById('enQuestion').innerHTML = item.display;
+    } else {
+        document.getElementById('rowAfterJa').style.display = "none";
+        document.getElementById('enQuestion').innerHTML = item.afterJa;
+    }
+
+    const area = document.getElementById('interactive-area');
+    area.innerHTML = "";
+
+    if (currentMode === 'vocab') {
+        const grid = document.createElement('div');
+        grid.className = "choices-grid";
+        
+        // --- 【完全デバッグ】元のマスターデータを傷つけずに複製し、確実にシャッフルを画面に割り当て ---
+        let displayChoices = [...item.choices];
+        shuffleArray(displayChoices);
+        
+        displayChoices.forEach(c => {
+            const b = document.createElement('button');
+            b.className = "choice-btn";
+            b.textContent = c;
+            b.onclick = () => {
+                if(isChecked) return;
+                userSelection = [c];
+                document.querySelectorAll('.choice-btn').forEach(el => el.style.backgroundColor = "");
+                b.style.backgroundColor = "var(--soft-blue)";
+                btn.disabled = false;
+                speak(c);
+            };
+            grid.appendChild(b);
+        });
+        area.appendChild(grid);
+    } else {
+        const ansArea = document.createElement('div');
+        ansArea.className = "answer-area";
+        ansArea.id = "answerArea";
+        ansArea.textContent = "[ ここを選択して並び替え ]";
+        area.appendChild(ansArea);
+
+        const bank = document.createElement('div');
+        bank.className = "word-bank";
+        
+        let shuffledBank = [...item.bank];
+        shuffleArray(shuffledBank);
+        
+        shuffledBank.forEach((w, idx) => {
+            const b = document.createElement('button');
+            b.className = "word-btn";
+            b.textContent = w;
+            b.id = "word-" + idx;
+            b.onclick = () => {
+                if(isChecked) return;
+                if(userSelection.length === 0) ansArea.textContent = "";
+                
+                userSelection.push({ text: w, btnId: b.id });
+                b.classList.add('used');
+                renderReorder();
+                btn.disabled = false;
+                speak(w);
+            };
+            bank.appendChild(b);
+        });
+        area.appendChild(bank);
+    }
+}
+
+function renderReorder() {
+    const ansArea = document.getElementById('answerArea');
+    ansArea.innerHTML = "";
+    userSelection.forEach((obj, clickIdx) => {
+        const s = document.createElement('span');
+        s.className = "answer-word";
+        s.textContent = obj.text;
+        s.onclick = () => {
+            if(isChecked) return;
+            userSelection.splice(clickIdx, 1);
+            document.getElementById(obj.btnId).classList.remove('used');
+            
+            if(userSelection.length === 0) {
+                ansArea.textContent = "[ ここを選択して並び替え ]";
+                document.getElementById('mainActionBtn').disabled = true;
+            } else {
+                renderReorder();
+            }
+        };
+        ansArea.appendChild(s);
+    });
+}
+
+function handleMainAction() {
+    const btn = document.getElementById('mainActionBtn');
+    const resultMsg = document.getElementById('resultMsg');
+    const expArea = document.getElementById('explanationArea');
+    const item = masterQuestions[currentIdx];
+
+    if (!isChecked) {
+        isChecked = true;
+        let isCorrect = false;
+        let finalText = "";
+
+        if (currentMode === 'vocab') {
+            isCorrect = (userSelection[0] === item.correct);
+            finalText = item.display.replace("[   ]", `<span style="color:var(--accent-teal); border-bottom:2px solid;">${item.correct}</span>`);
+            document.getElementById('enQuestion').innerHTML = finalText;
+        } else {
+            let userStr = userSelection.map(obj => obj.text).join(" ").replace(/\s+(,|\.)/g, "$1");
+            let targetCorrectStr = item.bank.join(" ").replace(/\s+(,|\.)/g, "$1");
+            isCorrect = (userStr === targetCorrectStr);
+            
+            document.getElementById('interactive-area').innerHTML = `<div class="final-text-view">${targetCorrectStr}</div>`;
+        }
+        
+        if (isCorrect) {
+            resultMsg.textContent = "Perfect! 職人が唸る最高水準の表現です。";
+            resultMsg.style.color = "var(--primary-blue)";
+        } else {
+            const answerText = currentMode === 'vocab' ? item.correct : item.bank.join(" ").replace(/\s+(,|\.)/g, "$1");
+            resultMsg.textContent = `❌ リバイズ推奨。洗練表現は: 「${answerText}」`;
+            resultMsg.style.color = "var(--wrong-red)";
+            if (currentMode === 'reorder') {
+                document.getElementById('interactive-area').innerHTML = `<div class="final-text-view" style="background:#ffebee; border-left-color:#c62828; color:#c62828;">${item.bank.join(" ").replace(/\s+(,|\.)/g, "$1")}</div>`;
+            }
+        }
+        
+        const explanationText = item.exp ? item.exp : "文構造、ボキャブラリーともに国連スタイルの洗練されたオフィシャル表現です。";
+        expArea.innerHTML = `<div class="explanation-box">${explanationText}</div>`;
+        speak(item.bank.join(" ").replace(/\s+(,|\.)/g, "$1"));
+        
+        if (currentIdx < masterQuestions.length - 1) {
+            btn.textContent = "Next Question →";
+        } else {
+            btn.textContent = currentMode === 'vocab' ? "Go to Reorder Mode →" : "Finish Training";
+        }
+    } else {
+        if (currentIdx < masterQuestions.length - 1) {
+            currentIdx++;
+            loadQuestion();
+        } else {
+            if (currentMode === 'vocab') {
+                switchMode('reorder');
+            } else {
+                document.getElementById('quiz-ui').innerHTML = `
+                    <h2>🎉 Day 2 特訓修了！</h2>
+                    <p>素晴らしい備えです！単語の穴埋め20問、そして並び替え20問の全プロセスを完遂しました。</p>
+                    <p>直訳の癖を克服し、洗練後の知的な文法構造をマスターしたことで、実際のrevise作業でも外国人の友人と対等以上のハイレベルなディスカッションができるはずです。明日もこの調子で頑張りましょう！</p>
+                `;
+                btn.style.display = "none";
+            }
+        }
+    }
+}
+
+function preparePrintSheets() {
+    // Day 2 語彙穴埋め20問
+    document.getElementById('print-vocab-content').innerHTML = masterQuestions.map((item, i) => `
+        <div class="print-item">
+            <div class="print-meta">Ref: GDIR 2025 ${item.page}</div>
+            <div class="print-line-wrapper">
+                <div class="print-ja-block">
+                    <b>${i+1}. 元の日本語文:</b> ${item.ja}<br>
+                    <span class="print-good-info">洗練後の和訳変化: ${item.afterJa}</span>
+                </div>
+                <div class="print-underline"></div>
+            </div>
+            <div class="print-bad-info">直訳英訳 (Bad): ${item.bad}</div>
+            <div style="font-weight:bold; margin-top:6px; font-size:10pt;">${item.display.replace("[   ]", "__________________")}</div>
+            <div class="print-exp">解説: ${item.exp ? item.exp : "国連公式ドキュメント準拠の洗練された表現です。"}</div>
+        </div>
+    `).join('');
+
+    // Day 2 並べ替え20問
+    document.getElementById('print-reorder-content').innerHTML = masterQuestions.map((item, i) => {
+        let shuffled = [...item.bank];
+        shuffleArray(shuffled);
+        return `
+            <div class="print-item">
+                <div class="print-ja"><b>${i+1}. 洗練された和訳:</b> ${item.afterJa}</div>
+                <div class="print-bank-box">[ ${shuffled.join(" / ")} ]</div>
+                <div class="print-reorder-line"></div>
+            </div>
+        `;
+    }).join('');
+}
+
+window.onload = () => {
+    loadQuestion();
+    preparePrintSheets();
+};
+</script>
+</body>
+</html>
