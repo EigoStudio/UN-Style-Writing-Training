@@ -186,11 +186,11 @@
 
 <div id="print-area">
     <div class="print-page">
-        <div class="print-title">UN-Style Writing Worksheet: Vol.1 Vocabulary Fill-in</div>
+        <div class="print-title">UN-Style Writing Worksheet: Day 1 Vocabulary Fill-in</div>
         <div id="print-vocab-content"></div>
     </div>
     <div class="print-page">
-        <div class="print-title">UN-Style Writing Worksheet: Vol.2 Sentence Reordering</div>
+        <div class="print-title">UN-Style Writing Worksheet: Day 1 Sentence Reordering</div>
         <div id="print-reorder-content"></div>
     </div>
 </div>
@@ -651,7 +651,7 @@ function handleMainAction() {
 
 // --- 印刷用シートの動的生成 ---
 function preparePrintSheets() {
-    // Vol.1 語彙穴埋め20問
+    // Day 1 語彙穴埋め20問
     document.getElementById('print-vocab-content').innerHTML = masterQuestions.map((item, i) => `
         <div class="print-item">
             <div class="print-meta">Ref: GDIR 2025 ${item.page}</div>
@@ -665,7 +665,7 @@ function preparePrintSheets() {
         </div>
     `).join('');
 
-    // Vol.2 並べ替え20問
+    // Day 1 並べ替え20問
     document.getElementById('print-reorder-content').innerHTML = masterQuestions.map((item, i) => {
         let shuffled = [...item.bank];
         shuffleArray(shuffled);
